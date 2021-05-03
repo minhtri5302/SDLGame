@@ -14,12 +14,13 @@ class LTexture
 public:
     LTexture();
     ~LTexture();
-    void loadfromfile(SDL_Renderer* gRenderer, string path);
-    void render(SDL_Renderer* gRenderer);
+    void loadfromfile(SDL_Renderer* gRenderer, const string &path);
+    void render(SDL_Renderer* gRenderer, const SDL_Rect &SRect, const SDL_Rect &DRect);
     void free();
+    SDL_Rect sRect;
     SDL_Rect dRect;
 private:
-    SDL_Texture* gTexture;
+    SDL_Texture* mTexture;
 };
 
 #endif // LTEXTURE_H_

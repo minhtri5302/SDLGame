@@ -7,13 +7,13 @@ using namespace std;
 
 LTexture::LTexture()
 {
-    gTexture = NULL;
+    this->mTexture = NULL;
 }
 LTexture::~LTexture()
 {
-    gTexture = NULL;
+    this->mTexture = NULL;
 }
-void LTexture::loadfromfile(SDL_Renderer* gRenderer, string path)
+void LTexture::loadfromfile(SDL_Renderer* gRenderer, const string &path)
 {
     //The final texture
     SDL_Texture* newTexture = NULL;
@@ -25,25 +25,25 @@ void LTexture::loadfromfile(SDL_Renderer* gRenderer, string path)
     else
     {
         //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface );
+        newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
         if(newTexture == NULL)
            // logError("Unable to create texture from %s! SDL Error:", SDL_ERROR);
         SDL_FreeSurface( loadedSurface );
     }
-    gTexture = newTexture;
+    this->mTexture = newTexture;
 }
-void LTexture::render(SDL_Renderer* gRenderer)
+void LTexture::render(SDL_Renderer* gRenderer, const SDL_Rect &SRect, const SDL_Rect &DRect)
 {
-    SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+    SDL_RenderCopy(gRenderer, this->mTexture, &SRect, &DRect);
 }
 
 void LTexture::free()
 {
     //Free texture if it exists
-	if( gTexture != NULL )
+	if( this->mTexture != NULL )
 	{
-		SDL_DestroyTexture( gTexture );
-		gTexture = NULL;
+		SDL_DestroyTexture( this->mTexture );
+		this->mTexture = NULL;
 	}
 }
 
