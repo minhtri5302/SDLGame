@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1620004921 source:e:\sdlgame\main.cpp
+	<bits/stdc++.h>
+	"LTexture.h"
+	"Console.h"
+
+1619966242 e:\sdlgame\engine.h
+	<iostream>
+	"SDL.h"
+	"LTexture.h"
+	"Console.h"
+
+1620004890 e:\sdlgame\ltexture.h
+	<iostream>
+	<string>
+	"SDL.h"
+	"SDL_image.h"
+	"Console.h"
+
+1619965404 source:e:\sdlgame\engine.cpp
+	<iostream>
+	"Engine.h"
+
+1620004954 source:e:\sdlgame\ltexture.cpp
+	<iostream>
+	"LTexture.h"
+
+1620004470 e:\sdlgame\console.h
+	<iostream>
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+
+1620004533 source:e:\sdlgame\console.cpp
+	"Console.h"
+

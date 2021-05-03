@@ -32,6 +32,12 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="Console.cpp" />
+		<Unit filename="Console.h" />
+		<Unit filename="Engine.cpp" />
+		<Unit filename="Engine.h" />
+		<Unit filename="LTexture.cpp" />
+		<Unit filename="LTexture.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
