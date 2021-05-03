@@ -10,26 +10,19 @@
 #define S second
 #define FOR(i, x, y) for(int i = x; i <= y; ++i)
 #define FORN(i, x, y) for(int i = x; i >= y; --i)
-
+#define pii pair<int, int>
+#define pb push_back
+#define mp make_pair
 using namespace std;
 
-//Enum
-enum KeyPressSurfaces
-{
-	KEY_PRESS_SURFACE_DEFAULT,
-	KEY_PRESS_SURFACE_UP,
-	KEY_PRESS_SURFACE_DOWN,
-	KEY_PRESS_SURFACE_LEFT,
-	KEY_PRESS_SURFACE_RIGHT,
-	KEY_PRESS_SURFACE_TOTAL
-};
+
 
 //Game Engine
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 550;
 const string gametitle = "Đẩy Hình";
 const string OldInfoFile = "OldInfoSys.txt";
-fstream fio;
+
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 
@@ -47,21 +40,23 @@ pair<int, int> SavePos[10][10][10]; // Dữ liệu cũ;
 string SavePicture[10]; //Đường dẫn ảnh cũ
 pair<int, int> curPos[10][10][10]; // Ô hiện tại của bức tranh (i,j) ;
 pair<int, int> nowPos[10][10][10]; // Ô (i,j) hiện tại thuộc về bức tranh nào
-
+vector<pair<vector<pii>, int>> Map[10];
+map<vector<pii>, int> mm;
 //Texture
 LTexture gTexture;
 
 //Game Loop
 int Rand(int Minn, int Maxx);
-void RenderSmallPicture();
-void MoveBlank(int addX, int addY);
-bool CheckWin();
+void RenderSmallPicture(int option);
+void MoveBlank(int option, int addX, int addY);
+bool CheckWin(int option);
 void ResetGame(int option);
 void ResetMap(int option);
 void InitMap(int option);
 string RandPicture();
 void ReadOldInfo();
 void WriteOldInfo();
+void RandStateMap();
 
 
 int main(int argc, char* argv[])
@@ -76,7 +71,7 @@ int main(int argc, char* argv[])
     bool quit = false;
     SDL_Event e;
     loadmedia(SavePicture[n]);
-    RenderSmallPicture();
+    RenderSmallPicture(n);
     render();
     while(!quit)
     {
@@ -93,76 +88,92 @@ int main(int argc, char* argv[])
                 {
                     case SDLK_UP:
                     {
-                        if(curPos[n][n][n].S > 1)
-                            MoveBlank(0, -1);
+                        if(curPos[n][n][n].S < n)
+                            MoveBlank(n, 0, 1);
                         break;
                     }
                     case SDLK_DOWN:
                     {
-                        if(curPos[n][n][n].S < n)
-                            MoveBlank(0, 1);
+                        if(curPos[n][n][n].S > 1)
+                            MoveBlank(n, 0, -1);
                         break;
                     }
                     case SDLK_LEFT:
                     {
-                        if(curPos[n][n][n].F > 1)
-                            MoveBlank(-1, 0);
+                        if(curPos[n][n][n].F < n)
+                            MoveBlank(n, 1, 0);
                         break;
                     }
                     case SDLK_RIGHT:
                     {
-                        if(curPos[n][n][n].F < n)
-                            MoveBlank(1, 0);
+                        if(curPos[n][n][n].F > 1)
+                            MoveBlank(n, -1, 0);
                         break;
                     }
                 }
             }
         }
         SDL_RenderClear(gRenderer);
-        RenderSmallPicture();
+        RenderSmallPicture(n);
         render();
         //if(CheckWin()) cout << 1 << " ";
     }
+
+    if(highscore[n] == 0) highscore[n] = cntMove;
+        else highscore[n] = min(highscore[n], cntMove);
+
     gTexture.free();
     close();
     WriteOldInfo();
 }
+void RandSateMap()
+{
+//    FOR(option, 3, 6)
+//    {
+//        vector<pii> s;
+//        FOR(i, 1, option)
+//            FOR(j, 1, option) s.pb({i, j});
+//
+//    }
+
+}
 void ReadOldInfo()
 {
-    fio.open(OldInfoFile, ios::in);
-    if(1)
+    freopen(OldInfoFile.c_str(),"r", stdin);
+    bool ok = 0;
+    cin >> ok;
+    if(ok)
     {
         FOR(x, 3, 6)
         {
-            fio >> highscore[x];
-            fio >> SavePicture[x];
-            fio >> MinMove[x];
+            cin >> highscore[x];
+            cin >> SavePicture[x];
+            cin >> MinMove[x];
             FOR(i, 1, x)
-            FOR(j, 1, x) fio >> SavePos[x][i][j].F >> SavePos[x][i][j].S;
+                FOR(j, 1, x) cin >> SavePos[x][i][j].F >> SavePos[x][i][j].S;
         }
     }
     else FOR(x, 3, 6) ResetMap(x);
-    fio.close();
 }
 void WriteOldInfo()
 {
-    fio.open(OldInfoFile, ios::out);
+    freopen(OldInfoFile.c_str(),"w", stdout);
+    cout << 1 << "\n";
     FOR(x, 3, 6)
     {
-        fio << highscore[x] << "\n";
-        fio << SavePicture[x] << "\n";
-        fio << MinMove[x] << "\n";
+        cout << highscore[x] << "\n";
+        cout << SavePicture[x] << "\n";
+        cout << MinMove[x] << "\n";
         FOR(i, 1, x)
         {
-            FOR(j, 1, x) fio << SavePos[x][i][j].F << " " << SavePos[x][i][j].S << " ";
-            fio << "\n";
+            FOR(j, 1, x) cout << SavePos[x][i][j].F << " " << SavePos[x][i][j].S << " ";
+            cout << "\n";
         }
     }
-    fio.close();
 }
 string RandPicture()
 {
-    int id = Rand(1, 19);
+    int id = Rand(1, 4);
     string newid = to_string(id);
     string image_newid = "image/image" + newid + ".jpg";
     return image_newid;
@@ -205,44 +216,44 @@ int Rand(int Minn, int Maxx)
     return rand() % (Maxx - Minn + 1) + Minn;
 }
 
-bool CheckWin()
+bool CheckWin(int option)
 {
-    FOR(i, 1, n)
-        FOR(j, 1, n) if(curPos[n][i][j]!=make_pair(i, j)) return 0;
+    FOR(i, 1, option)
+        FOR(j, 1, option) if(curPos[option][i][j]!=make_pair(i, j)) return 0;
     return 1;
 }
 
-void MoveBlank(int addX, int addY)
+void MoveBlank(int option, int addX, int addY)
 {
-    pair<int, int> &Blank = curPos[n][n][n];
-    pair<int, int> temp1 = nowPos[n][Blank.F+addX][Blank.S+addY];
-    pair<int, int> temp2 = curPos[n][temp1.F][temp1.S];
+    pair<int, int> &Blank = curPos[option][option][option];
+    pair<int, int> temp1 = nowPos[option][Blank.F+addX][Blank.S+addY];
+    pair<int, int> temp2 = curPos[option][temp1.F][temp1.S];
     pair<int, int> temp3 = Blank;
-    pair<int, int> temp4 = {n, n};
-    curPos[n][temp1.F][temp1.S] = temp3;
-    nowPos[n][temp3.F][temp3.S] = temp1;
+    pair<int, int> temp4 = {option, option};
+    curPos[option][temp1.F][temp1.S] = temp3;
+    nowPos[option][temp3.F][temp3.S] = temp1;
     Blank = temp2;
-    nowPos[n][Blank.F][Blank.S] = temp4;
+    nowPos[option][Blank.F][Blank.S] = temp4;
     cntMove++;
 }
 
-void RenderSmallPicture()
+void RenderSmallPicture(int option)
 {
-    int kt = 480/n;
+    int kt = 480/option;
     int kc = 2;
     int XPos = 1, YPos = 1;
-    for(int i = 1; i <= n; ++i)
-        for(int j = 1; j <= n; ++j)
+    for(int i = 1; i <= option; ++i)
+        for(int j = 1; j <= option; ++j)
         {
-            if(i == n && j == n) continue;
+            if(i == option && j == option) continue;
             SDL_Rect SRect, DRect;
             SRect.x = (i-1) * kt + 1;
             SRect.y = (j-1) * kt + 1;
             SRect.w = kt;
             SRect.h = kt;
 
-            DRect.x = XPos + (curPos[n][i][j].F-1) * (kt + kc);
-            DRect.y = YPos + (curPos[n][i][j].S-1) * (kt + kc);
+            DRect.x = XPos + (curPos[option][i][j].F-1) * (kt + kc);
+            DRect.y = YPos + (curPos[option][i][j].S-1) * (kt + kc);
             DRect.w = DRect.h = kt;
             gTexture.render(gRenderer, SRect, DRect);
         }
