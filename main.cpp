@@ -59,7 +59,7 @@ bool CheckWin();
 void ResetGame(int option);
 void ResetMap(int option);
 void InitMap(int option);
-string RandMap();
+string RandPicture();
 void ReadOldInfo();
 void WriteOldInfo();
 
@@ -160,7 +160,7 @@ void WriteOldInfo()
     }
     fio.close();
 }
-string RandMap()
+string RandPicture()
 {
     int id = Rand(1, 19);
     string newid = to_string(id);
@@ -191,7 +191,7 @@ void ResetMap(int option)
     cntMove = 0;
 
     //Map
-    SavePicture[option] = RandMap();
+    SavePicture[option] = RandPicture();
 
 }
 void ResetGame(int option)
