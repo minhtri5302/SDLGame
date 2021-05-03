@@ -36,10 +36,13 @@ void init();
 void loadmedia();
 void render();
 void close();
-int n;
+
+int n, cntMove;
 //Texture
 LTexture gTexture;
 void RenderSmallPicture();
+void MoveBlank(int addX, int addY);
+bool CheckWin();
 
 pair<int, int> curPos[10][10]; // Ô hiện tại của bức tranh (i,j) ;
 pair<int, int> nowPos[10][10]; // Ô (i,j) hiện tại thuộc về bức tranh nào
@@ -64,83 +67,64 @@ int main(int argc, char* argv[])
             }
             else if( e.type == SDL_KEYDOWN )
             {
-                pair<int, int> &Blank = curPos[n][n];
                 //Select surfaces based on key press
-                switch( e.key.keysym.sym )
+                switch(e.key.keysym.sym)
                 {
                     case SDLK_UP:
                     {
-                        if(Blank.S > 1)
-                        {
-                            pair<int, int> temp1 = nowPos[Blank.F][Blank.S-1]; // Bức tranh nằm trước Blank
-                            pair<int, int> temp2 = curPos[temp1.F][temp1.S]; // Vị trí hiện tại của bức tranh nằm trước Blank
-                            pair<int, int> temp3 = Blank; // Vị trí của Blank
-                            pair<int, int> temp4 = {n, n};  // Bức tranh nằm trong vị trí của Blank
-                            curPos[temp1.F][temp1.S] = temp3; //Gán vị trí hiện tại của bức tranh nằm trước Blank vào vị trí Blank
-                            nowPos[temp3.F][temp3.S] = temp1;// Gán bức tranh nằm trước Blank vào vào vị trí cũ của ô tranh Blank
-                            Blank = temp2;
-                            nowPos[Blank.F][Blank.S] = temp4;
-                        }
+                        if(curPos[n][n].S > 1)
+                            MoveBlank(0, -1);
                         break;
                     }
-
                     case SDLK_DOWN:
                     {
-                        if(Blank.S < n)
-                        {
-                            pair<int, int> temp1 = nowPos[Blank.F][Blank.S+1]; // Bức tranh nằm sau Blank
-                            pair<int, int> temp2 = curPos[temp1.F][temp1.S]; // Vị trí hiện tại của bức tranh nằm sau Blank
-                            pair<int, int> temp3 = Blank; // Vị trí của Blank
-                            pair<int, int> temp4 = {n, n}; // Bức tranh nằm trong vị trí của Blank
-                            curPos[temp1.F][temp1.S] = temp3; //Gán vị trí hiện tại của bức tranh nằm sau Blank vào vị trí Blank
-                            nowPos[temp3.F][temp3.S] = temp1;// Gán bức tranh nằm sau Blank vào vào vị trí cũ của ô tranh Blank
-                            Blank = temp2;
-                            nowPos[Blank.F][Blank.S] = temp4;
-                        }
+                        if(curPos[n][n].S < n)
+                            MoveBlank(0, 1);
                         break;
                     }
-
                     case SDLK_LEFT:
                     {
-                        if(Blank.F > 1)
-                        {
-                            pair<int, int> temp1 = nowPos[Blank.F-1][Blank.S]; // Bức tranh nằm trái Blank
-                            pair<int, int> temp2 = curPos[temp1.F][temp1.S]; // Vị trí hiện tại của bức tranh nằm trái Blank
-                            pair<int, int> temp3 = Blank; // Vị trí của Blank
-                            pair<int, int> temp4 = {n, n}; // Bức tranh nằm trong vị trí của Blank
-                            curPos[temp1.F][temp1.S] = temp3; //Gán vị trí hiện tại của bức tranh nằm trái Blank vào vị trí Blank
-                            nowPos[temp3.F][temp3.S] = temp1;// Gán bức tranh nằm trái Blank vào vào vị trí cũ của ô tranh Blank
-                            Blank = temp2;
-                            nowPos[Blank.F][Blank.S] = temp4;
-                        }
-                           break;
-                    }
-
-                    case SDLK_RIGHT:
-                    {
-                        if(Blank.F < n)
-                        {
-                            pair<int, int> temp1 = nowPos[Blank.F+1][Blank.S]; // Bức tranh nằm trái Blank
-                            pair<int, int> temp2 = curPos[temp1.F][temp1.S]; // Vị trí hiện tại của bức tranh nằm trước Blank
-                            pair<int, int> temp3 = Blank; // Vị trí của Blank
-                            pair<int, int> temp4 = {n, n}; // Bức tranh nằm trong vị trí của Blank
-                            curPos[temp1.F][temp1.S] = temp3; //Gán vị trí hiện tại của bức tranh nằm phải Blank vào vị trí Blank
-                            nowPos[temp3.F][temp3.S] = temp1;// Gán bức tranh nằm phải Blank vào vào vị trí cũ của ô tranh Blank
-                            Blank = temp2;
-                            nowPos[Blank.F][Blank.S] = temp4;
-                        }
+                        if(curPos[n][n].F > 1)
+                            MoveBlank(-1, 0);
                         break;
                     }
-
+                    case SDLK_RIGHT:
+                    {
+                        if(curPos[n][n].F < n)
+                            MoveBlank(1, 0);
+                        break;
+                    }
                 }
             }
         }
         SDL_RenderClear(gRenderer);
         RenderSmallPicture();
         render();
+        if(CheckWin()) cout << 1 << " ";
     }
     gTexture.free();
     close();
+}
+
+bool CheckWin()
+{
+    FOR(i, 1, n)
+        FOR(j, 1, n) if(curPos[i][j]!=make_pair(i, j)) return 0;
+    return 1;
+}
+
+void MoveBlank(int addX, int addY)
+{
+    pair<int, int> &Blank = curPos[n][n];
+    pair<int, int> temp1 = nowPos[Blank.F+addX][Blank.S+addY];
+    pair<int, int> temp2 = curPos[temp1.F][temp1.S];
+    pair<int, int> temp3 = Blank;
+    pair<int, int> temp4 = {n, n};
+    curPos[temp1.F][temp1.S] = temp3;
+    nowPos[temp3.F][temp3.S] = temp1;
+    Blank = temp2;
+    nowPos[Blank.F][Blank.S] = temp4;
+    cntMove++;
 }
 
 void RenderSmallPicture()
@@ -166,7 +150,7 @@ void RenderSmallPicture()
 }
 void loadmedia()
 {
-    gTexture.loadfromfile(gRenderer, "image/hello_world.bmp");
+    gTexture.loadfromfile(gRenderer, "image/image1.jpg");
 }
 
 void init()
