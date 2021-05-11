@@ -9,6 +9,12 @@ LTexture::LTexture()
 {
     this->mTexture = NULL;
 }
+LTexture::LTexture(SDL_Rect _sRect, SDL_Rect _dRect)
+{
+    this->mTexture = NULL;
+    this->sRect = sRect;
+    this->dRect = dRect;
+}
 LTexture::~LTexture()
 {
     this->mTexture = NULL;
@@ -35,6 +41,10 @@ void LTexture::loadfromfile(SDL_Renderer* gRenderer, const string &path)
 void LTexture::render(SDL_Renderer* gRenderer, const SDL_Rect &SRect, const SDL_Rect &DRect)
 {
     SDL_RenderCopy(gRenderer, this->mTexture, &SRect, &DRect);
+}
+void LTexture::render(SDL_Renderer* gRenderer)
+{
+    SDL_RenderCopy(gRenderer, this->mTexture, &(this->sRect), &(this->dRect));
 }
 
 void LTexture::free()

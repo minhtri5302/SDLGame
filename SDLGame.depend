@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1620063443 source:e:\sdlgame\main.cpp
+1620764429 source:e:\sdlgame\main.cpp
 	<bits/stdc++.h>
 	"LTexture.h"
 	"Console.h"
@@ -10,7 +10,7 @@
 	"LTexture.h"
 	"Console.h"
 
-1620017810 e:\sdlgame\ltexture.h
+1620765318 e:\sdlgame\ltexture.h
 	<iostream>
 	<string>
 	"SDL.h"
@@ -21,7 +21,7 @@
 	<iostream>
 	"Engine.h"
 
-1620028383 source:e:\sdlgame\ltexture.cpp
+1620765318 source:e:\sdlgame\ltexture.cpp
 	<iostream>
 	"LTexture.h"
 

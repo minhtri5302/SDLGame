@@ -14,9 +14,6 @@ void logError(const string &msg, int flag)
         case MIX_ERROR:
             cerr << Mix_GetError() << "\n";
             break;
-        case TTF_ERROR:
-            cerr << TTF_GetError() << "\n";
-            break;
     }
     exit(1);
 }
