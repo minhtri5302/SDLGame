@@ -133,6 +133,7 @@ bool CheckWin(int option);
 void ResetGame(int option);
 void ResetMap(int option);
 void InitMap(int option);
+void RenderNumber(int option, int kind);
 
 //Rand Function
 int Rand(int Minn, int Maxx);
@@ -313,7 +314,6 @@ void FullPictureDemo(int option)
 {
     BackBeforeGame.render(gRenderer);
     BackDemo.render(gRenderer);
-    //Update cnt and Minmove
     SDL_Rect DRect;
     DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
     gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
@@ -343,7 +343,7 @@ void waitGamePlay(int option)
     Background.render(gRenderer);
     BackGame[option].render(gRenderer);
     RenderSmallPicture(option);
-    //Update score and optimal
+    RenderNumber(option, 2);
     SDL_RenderPresent(gRenderer);
 
     SDL_Event e;
@@ -385,7 +385,7 @@ void waitGamePlay(int option)
                 Background.render(gRenderer);
                 BackGame[option].render(gRenderer);
                 RenderSmallPicture(option);
-                //Update score and optimal
+                RenderNumber(option, 2);
                 SDL_RenderPresent(gRenderer);
             }
             if(e.type == SDL_MOUSEMOTION)
@@ -423,7 +423,7 @@ void waitGamePlay(int option)
                     Background.render(gRenderer);
                     BackGame[option].render(gRenderer);
                     RenderSmallPicture(option);
-                    //Update score and optimal
+                    RenderNumber(option, 2);
                     SDL_RenderPresent(gRenderer);
                     touchStatus = 0;
                 }
@@ -439,7 +439,7 @@ void waitGamePlay(int option)
                     BackGame[option].render(gRenderer);
                     RenderSmallPicture(option);
                     _ResetButton1.render(gRenderer);
-                    //Update score and optimal
+                    RenderNumber(option, 2);
                     SDL_RenderPresent(gRenderer);
                 }
                 if(inside(x, y, NewButton1))
@@ -461,7 +461,7 @@ void waitGamePlay(int option)
                     DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
                     gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
                     _LookBackButton.render(gRenderer);
-                    //Update score and optimal
+                    RenderNumber(option, 2);
                     SDL_RenderPresent(gRenderer);
                 }
             }
@@ -471,12 +471,12 @@ void waitGamePlay(int option)
 }
 void waitGameOver(int option)
 {
-    highscore[option] = max(highscore[option], cntMove);
+    highscore[option] = min(highscore[option], cntMove);
     BackWinGame.render(gRenderer);
     SDL_Rect DRect;
     DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
     gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
-    //Update score and highscore and optimal
+    RenderNumber(option, 3);
     SDL_RenderPresent(gRenderer);
 
     SDL_Event e;
@@ -494,7 +494,7 @@ void waitGameOver(int option)
                 BackWinGame.render(gRenderer);
                 gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
                 _ResetButton2.render(gRenderer);
-                //Update score and highscore and optimal
+                RenderNumber(option, 3);
                 SDL_RenderPresent(gRenderer);
                 touchStatus = 1;
             }
@@ -503,7 +503,7 @@ void waitGameOver(int option)
                 BackWinGame.render(gRenderer);
                 gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
                 _NewButton2.render(gRenderer);
-                //Update score and highscore and optimal
+                RenderNumber(option, 3);
                 SDL_RenderPresent(gRenderer);
                 touchStatus = 2;
             }
@@ -512,7 +512,7 @@ void waitGameOver(int option)
                 BackWinGame.render(gRenderer);
                 gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
                 _MenuButton2.render(gRenderer);
-                //Update score and highscore and optimal
+                RenderNumber(option, 3);
                 SDL_RenderPresent(gRenderer);
                 touchStatus = 3;
             }
@@ -520,7 +520,7 @@ void waitGameOver(int option)
             {
                 BackWinGame.render(gRenderer);
                 gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
-                //Update score and highscore and optimal
+                RenderNumber(option, 3);
                 SDL_RenderPresent(gRenderer);
                 touchStatus = 0;
             }
@@ -662,6 +662,51 @@ int Rand(int Minn, int Maxx)
 }
 
 //Game function
+void RenderNumber(int option, int kind)
+{
+    SDL_Rect num[10];
+    for (int i = 0; i < 10; ++i)
+        num[i] = {i * 16, 0, 16, 16};
+    string _highscore = to_string(highscore[option]);
+    string _optimal = to_string(MinMove[option]);
+    string _score = to_string(cntMove);
+    if(kind== 2)
+    {
+        int XPos = 728 , YPos = 80;
+        for (int i = 0; i < _score.length(); ++i)
+        {
+            SDL_Rect dRect = {XPos+ i*16, YPos, 16, 16};
+            Number.render(gRenderer, num[_score[i]-'0'], dRect);
+        }
+        XPos = 744, YPos = 128;
+        for(int i = 0; i < _optimal.length(); ++i)
+        {
+            SDL_Rect dRect = {XPos+ i*16, YPos, 16, 16};
+            Number.render(gRenderer, num[_optimal[i]-'0'], dRect);
+        }
+    }
+    else if(kind== 3)
+    {
+        int XPos = 728 , YPos = 112;
+        for (int i = 0; i < _score.length(); ++i)
+        {
+            SDL_Rect dRect = {XPos+ i*16, YPos, 16, 16};
+            Number.render(gRenderer, num[_score[i]-'0'], dRect);
+        }
+        XPos = 744, YPos = 208;
+        for(int i = 0; i < _optimal.length(); ++i)
+        {
+            SDL_Rect dRect = {XPos+ i*16, YPos, 16, 16};
+            Number.render(gRenderer, num[_optimal[i]-'0'], dRect);
+        }
+        XPos = 728, YPos = 170;
+        for(int i = 0; i < _highscore.length(); ++i)
+        {
+            SDL_Rect dRect = {XPos+ i*16, YPos, 16, 16};
+            Number.render(gRenderer, num[_highscore[i]-'0'], dRect);
+        }
+    }
+}
 void InitMap(int option)
 {
     FOR(i, 1, option)
