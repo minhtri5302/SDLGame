@@ -21,22 +21,43 @@ const int SCREEN_WIDTH = 842;
 const int SCREEN_HEIGHT = 587;
 const string gametitle = "Đẩy Hình";
 const string OldInfoFile = "OldInfoSys.txt";
-const string Backgroundimage="image/GameBack.png";
-const string Backgameimage3="image/Back3x3.png";
-const string Backgameimage4="image/Back4x4.png";
-const string Backgameimage5="image/Back5x5.png";
-const string Backgameimage6="image/Back6x6.png";
 
+//Game Back Image Direction
+const string Backgroundimage="system_image/GameBack.png";
+const string Backgameimage3="system_image/Back3x3.png";
+const string Backgameimage4="system_image/Back4x4.png";
+const string Backgameimage5="system_image/Back5x5.png";
+const string Backgameimage6="system_image/Back6x6.png";
+const string Backwingameimage ="system_image/WinGameBack.png";
+const string Backoptionimage ="system_image/OptionBack.png";
+const string Backmenuimage = "system_image/MenuBack.png";
+const string Backdemoimage = "system_image/PictureBack.png";
+
+//Button Image Direction
+const string Playbuttonimage = "system_image/PlayButton.png";
+const string Exitbuttonimage = "system_image/ExitButton.png";
+const string Resetbuttonimage = "system_image/ResetButton.png";
+const string Newbuttonimage = "system_image/NewButton.png";
+const string Menubuttonimage = "system_image/MenuButton.png";
+const string Lookbackbuttonimage = "system_image/LookBackButton.png";
+const string Button3x3image = "system_image/3x3Button.png";
+const string Button4x4image = "system_image/4x4Button.png";
+const string Button5x5image = "system_image/5x5Button.png";
+const string Button6x6image = "system_image/6x6Button.png";
+
+//Number
+const string Numberimage = "system_image/Number.png";
+
+//SDL
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 
 void init();
 void render();
 void close();
-SDL_Rect CreateRect(int x, int y, int w, int h);
 
-//Khai báo
-int n = 3, cntMove;
+//Declare
+int n, cntMove;
 int highscore[7];
 int MinMove[7], cntOption[7];
 pair<int, int> SavePos[7][7][7]; // Dữ liệu cũ;
@@ -44,127 +65,494 @@ string SavePicture[7]; //Đường dẫn ảnh cũ
 pair<int, int> curPos[7][7][7]; // Ô hiện tại của bức tranh (i,j) ;
 pair<int, int> nowPos[7][7][7]; // Ô (i,j) hiện tại thuộc về bức tranh nào
 
-//Biến để tạo map
+//Var to Creat Map
 map<vector<pii>, int> mm[7];
 vector<vector<pii>> Data[7];
 vector<pii> State1;
 int cnt;
 int dState[7][10000000];
-int times = 10;
+int times = 2;
 
-//Texture
+//Texture manage
 LTexture Background;
 LTexture gTexture[7];
 LTexture BackGame[7];
+LTexture BackWinGame;
+LTexture BackOption;
+LTexture BackMenu;
+LTexture BackDemo;
+
+
+LTexture PlayButton;
+LTexture _PlayButton;
+
+LTexture ExitButton;
+LTexture _ExitButton;
+
+LTexture ResetButton1;
+LTexture _ResetButton1;
+
+LTexture ResetButton2;
+LTexture _ResetButton2;
+
+LTexture NewButton1;
+LTexture _NewButton1;
+
+LTexture NewButton2;
+LTexture _NewButton2;
+
+LTexture MenuButton1;
+LTexture _MenuButton1;
+
+LTexture MenuButton2;
+LTexture _MenuButton2;
+
+LTexture LookBackButton;
+LTexture _LookBackButton;
+
+LTexture ButtonOption[7];
+LTexture _ButtonOption[7];
+
+LTexture Number;
 
 void getAllTexture();
+void setUpTexture();
 
-//Game Loop
-int Rand(int Minn, int Maxx);
+
+//Game function
+void waitGameMenu();
+void waitOption();
+void FullPictureDemo(int option);
+void waitGamePlay(int option);
+void waitGameOver(int option);
+
+bool inside(int x, int y, LTexture &Button);
 void RenderSmallPicture(int option);
 void MoveBlank(int option, int addX, int addY);
 bool CheckWin(int option);
 void ResetGame(int option);
 void ResetMap(int option);
 void InitMap(int option);
+
+//Rand Function
+int Rand(int Minn, int Maxx);
 string RandPicture();
+
+//Read and Write Old Info
 void ReadOldInfo();
 void WriteOldInfo();
+
+//Creat Map by BFS and Save
+void RandStateMap();
 void CreateData(int option);
 void MakeState(int &option, int idState, int &posswap, queue<int> &q, vector<pii> &curState);
-void RandStateMap();
+
 
 int main(int argc, char* argv[])
 {
     srand(time(NULL));
 
-
+    //Tạo map bằng BFS
     RandStateMap();
+
+    //Read Old Info
     ReadOldInfo();
 
+    //Init Game
     init();
     getAllTexture();
+    setUpTexture();
 
-    InitMap(n);
+    //Game loop
+    while(1)
+        waitGameMenu();
 
-    bool quit = false;
+    //Free Objects
+    close();
+
+    //Write Old Info
+    WriteOldInfo();
+}
+bool inside(int x, int y, LTexture &Button)
+{
+    if(x >= Button.x && x <= Button.x + Button.w - 1 &&
+       y >= Button.y && y <= Button.y + Button.h - 1) return 1;
+    return 0;
+}
+void waitGameMenu()
+{
+    BackMenu.render(gRenderer);
+    SDL_RenderPresent(gRenderer);
+
     SDL_Event e;
-    RenderSmallPicture(n);
-    render();
-    while(!quit)
+    int touchStatus = 0;
+    while(1)
+    {
+        if(SDL_WaitEvent(&e) == 0) continue;
+        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_MOUSEMOTION)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(inside(x, y, PlayButton) && touchStatus != 1)
+            {
+                BackMenu.render(gRenderer);
+                _PlayButton.render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 1;
+            }
+            if(inside(x, y, ExitButton) && touchStatus != 2)
+            {
+                BackMenu.render(gRenderer);
+                _ExitButton.render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 2;
+            }
+            if(!inside(x, y, PlayButton) && !inside(x, y, ExitButton))
+            {
+                BackMenu.render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 0;
+            }
+        }
+        if(e.type == SDL_MOUSEBUTTONUP)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(inside(x, y, PlayButton))
+            {
+                waitOption();
+                return;
+            }
+            if(inside(x, y, ExitButton))
+            {
+                exit(0);
+            }
+        }
+    }
+}
+void waitOption()
+{
+    BackOption.render(gRenderer);
+    SDL_RenderPresent(gRenderer);
+
+    SDL_Event e;
+    int touchStatus = 0;
+    while(1)
+    {
+        if(SDL_WaitEvent(&e) == 0) continue;
+        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_MOUSEMOTION)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(inside(x, y, ButtonOption[3]) && touchStatus != 1)
+            {
+                BackOption.render(gRenderer);
+                _ButtonOption[3].render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 1;
+            }
+            if(inside(x, y, ButtonOption[4]) && touchStatus != 2)
+            {
+                BackOption.render(gRenderer);
+                _ButtonOption[4].render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 2;
+            }
+            if(inside(x, y, ButtonOption[5]) && touchStatus != 3)
+            {
+                BackOption.render(gRenderer);
+                _ButtonOption[5].render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 3;
+            }
+            if(inside(x, y, ButtonOption[6]) && touchStatus != 4)
+            {
+                BackOption.render(gRenderer);
+                _ButtonOption[6].render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 4;
+            }
+            if(!inside(x, y, ButtonOption[3]) && !inside(x, y, ButtonOption[4])
+                && !inside(x, y, ButtonOption[5]) && !inside(x, y, ButtonOption[6]))
+            {
+                BackOption.render(gRenderer);
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 0;
+            }
+        }
+        if(e.type == SDL_MOUSEBUTTONUP)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(inside(x, y, ButtonOption[3]))
+            {
+                FullPictureDemo(3);
+                return;
+            }
+            if(inside(x, y, ButtonOption[4]))
+            {
+                FullPictureDemo(4);
+                return;
+            }
+            if(inside(x, y, ButtonOption[5]))
+            {
+                FullPictureDemo(5);
+                return;
+            }
+            if(inside(x, y, ButtonOption[6]))
+            {
+                FullPictureDemo(6);
+                return;
+            }
+        }
+    }
+}
+void FullPictureDemo(int option)
+{
+    Background.render(gRenderer);
+    BackDemo.render(gRenderer);
+    //Update cnt and Minmove
+    SDL_Rect DRect;
+    DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
+    gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
+    SDL_RenderPresent(gRenderer);
+
+    SDL_Event e;
+    while(1)
+    {
+        if(SDL_WaitEvent(&e) == 0) continue;
+        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_KEYDOWN)
+        {
+            switch(e.key.keysym.sym)
+            case SDLK_SPACE:
+            {
+                waitGamePlay(option);
+                return;
+            }
+
+        }
+    }
+}
+void waitGamePlay(int option)
+{
+    InitMap(option);
+
+    Background.render(gRenderer);
+    BackGame[option].render(gRenderer);
+    RenderSmallPicture(option);
+    //Update score and optimal
+    SDL_RenderPresent(gRenderer);
+
+    SDL_Event e;
+    int touchStatus = 0;
+    while(!CheckWin(option))
     {
         while(SDL_PollEvent(&e) != 0)
         {
-            if(e.type == SDL_QUIT)
+            if(e.type == SDL_QUIT) exit(0);
+            if( e.type == SDL_KEYDOWN )
             {
-                quit = true;
-            }
-            else if( e.type == SDL_KEYDOWN )
-            {
-
                 switch(e.key.keysym.sym)
                 {
                     case SDLK_UP:
                     {
-                        if(curPos[n][n][n].S < n)
-                            MoveBlank(n, 0, 1);
+                        if(curPos[option][option][option].S < option)
+                            MoveBlank(option, 0, 1);
                         break;
                     }
                     case SDLK_DOWN:
                     {
-                        if(curPos[n][n][n].S > 1)
-                            MoveBlank(n, 0, -1);
+                        if(curPos[option][option][option].S > 1)
+                            MoveBlank(option, 0, -1);
                         break;
                     }
                     case SDLK_LEFT:
                     {
-                        if(curPos[n][n][n].F < n)
-                            MoveBlank(n, 1, 0);
+                        if(curPos[option][option][option].F < option)
+                            MoveBlank(option, 1, 0);
                         break;
                     }
                     case SDLK_RIGHT:
                     {
-                        if(curPos[n][n][n].F > 1)
-                            MoveBlank(n, -1, 0);
+                        if(curPos[option][option][option].F > 1)
+                            MoveBlank(option, -1, 0);
                         break;
                     }
                 }
+                Background.render(gRenderer);
+                BackGame[option].render(gRenderer);
+                RenderSmallPicture(option);
+                //Update score and optimal
+                SDL_RenderPresent(gRenderer);
+            }
+            if(e.type == SDL_MOUSEMOTION)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if(inside(x, y, ResetButton1) && touchStatus != 1)
+                {
+                    _ResetButton1.render(gRenderer);
+                    SDL_RenderPresent(gRenderer);
+                    touchStatus = 1;
+                }
+                if(inside(x, y, NewButton1) && touchStatus != 2)
+                {
+                    _NewButton1.render(gRenderer);
+                    SDL_RenderPresent(gRenderer);
+                    touchStatus = 2;
+
+                }
+                if(inside(x, y, MenuButton1) && touchStatus != 3)
+                {
+                    _MenuButton1.render(gRenderer);
+                    SDL_RenderPresent(gRenderer);
+                    touchStatus = 3;
+                }
+                if(inside(x, y, LookBackButton) && touchStatus != 4)
+                {
+                    _LookBackButton.render(gRenderer);
+                    SDL_RenderPresent(gRenderer);
+                    touchStatus = 4;
+                }
+                if(!inside(x, y, LookBackButton) && !inside(x, y, ResetButton1)
+                    && !inside(x, y, NewButton1) && !inside(x, y, NewButton1))
+                {
+                    Background.render(gRenderer);
+                    BackGame[option].render(gRenderer);
+                    RenderSmallPicture(option);
+                    //Update score and optimal
+                    SDL_RenderPresent(gRenderer);
+                    touchStatus = 0;
+                }
+            }
+            if(e.type == SDL_MOUSEBUTTONUP)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if(inside(x, y, ResetButton1))
+                {
+                    ResetGame(option);
+                    Background.render(gRenderer);
+                    BackGame[option].render(gRenderer);
+                    RenderSmallPicture(option);
+                    _ResetButton1.render(gRenderer);
+                    //Update score and optimal
+                    SDL_RenderPresent(gRenderer);
+                }
+                if(inside(x, y, NewButton1))
+                {
+                    ResetMap(option);
+                    Background.render(gRenderer);
+                    BackGame[option].render(gRenderer);
+                    RenderSmallPicture(option);
+                    _NewButton1.render(gRenderer);
+                    //Update score and optimal
+                    SDL_RenderPresent(gRenderer);
+                }
+                if(inside(x, y, MenuButton1))
+                {
+                    waitOption();
+                    return;
+                }
+                if(inside(x, y, LookBackButton))
+                {
+                    Background.render(gRenderer);
+                    BackDemo.render(gRenderer);
+                    SDL_Rect DRect;
+                    DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
+                    gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
+                    _LookBackButton.render(gRenderer);
+                    //Update score and optimal
+                    SDL_RenderPresent(gRenderer);
+                }
             }
         }
-        SDL_RenderClear(gRenderer);
-        RenderSmallPicture(n);
-        render();
     }
-
-    if(highscore[n] == 0) highscore[n] = cntMove;
-        else highscore[n] = min(highscore[n], cntMove);
-
-    close();
-    WriteOldInfo();
+    waitGameOver(option);
 }
-void getAllTexture()
+void waitGameOver(int option)
 {
-     Background.loadfromfile(gRenderer, Backgroundimage);
+    BackWinGame.render(gRenderer);
+    SDL_Rect DRect;
+    DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
+    gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
+    //Update score and highscore and optimal
+    SDL_RenderPresent(gRenderer);
 
-     BackGame[3].loadfromfile(gRenderer, Backgameimage3);
-     BackGame[4].loadfromfile(gRenderer, Backgameimage4);
-     BackGame[5].loadfromfile(gRenderer, Backgameimage5);
-     BackGame[6].loadfromfile(gRenderer, Backgameimage6);
-
-     gTexture[3].loadfromfile(gRenderer, SavePicture[3]);
-     gTexture[4].loadfromfile(gRenderer, SavePicture[4]);
-     gTexture[5].loadfromfile(gRenderer, SavePicture[5]);
-     gTexture[6].loadfromfile(gRenderer, SavePicture[6]);
+    SDL_Event e;
+    int touchStatus = 0;
+    while(1)
+    {
+        if(SDL_WaitEvent(&e) == 0) continue;
+        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_MOUSEMOTION)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(inside(x, y, ResetButton2) && touchStatus != 1)
+            {
+                BackWinGame.render(gRenderer);
+                gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
+                _ResetButton2.render(gRenderer);
+                //Update score and highscore and optimal
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 1;
+            }
+            if(inside(x, y, NewButton2) && touchStatus != 2)
+            {
+                BackWinGame.render(gRenderer);
+                gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
+                _NewButton2.render(gRenderer);
+                //Update score and highscore and optimal
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 2;
+            }
+            if(inside(x, y, MenuButton2) && touchStatus != 3)
+            {
+                BackWinGame.render(gRenderer);
+                gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
+                _MenuButton2.render(gRenderer);
+                //Update score and highscore and optimal
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 3;
+            }
+            if(!inside(x, y, ResetButton2) && !inside(x, y, NewButton2) && !inside(x, y, MenuButton2))
+            {
+                BackWinGame.render(gRenderer);
+                gTexture[option].render(gRenderer, gTexture[option].sRect, DRect);
+                //Update score and highscore and optimal
+                SDL_RenderPresent(gRenderer);
+                touchStatus = 0;
+            }
+        }
+        else if(e.type == SDL_MOUSEBUTTONUP)
+        {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(inside(x, y, ResetButton2))
+            {
+                ResetGame(option);
+                waitGamePlay(option);
+                return;
+            }
+            if(inside(x, y, NewButton2))
+            {
+                ResetMap(option);
+                waitGamePlay(option);
+                return;
+            }
+            if(inside(x, y, MenuButton2))
+            {
+                waitOption();
+                return;
+            }
+        }
+    }
 }
-SDL_Rect CreateRect(int x, int y, int w, int h)
-{
-    SDL_Rect temp;
-    temp.x = x;
-    temp.y = y;
-    temp.w = w;
-    temp.h = h;
-    return temp;
-}
+//Creat Map by BFS and Save
 void RandStateMap()
 {
     FOR(i, 3, 6) CreateData(i);
@@ -224,6 +612,8 @@ void CreateData(int option)
     }
     cntOption[option] = cnt;
 }
+
+//Read and Write Old Info
 void ReadOldInfo()
 {
     freopen(OldInfoFile.c_str(),"r", stdin);
@@ -258,14 +648,23 @@ void WriteOldInfo()
         }
     }
 }
+
+//Rand Function
 string RandPicture()
 {
-    //int id = Rand(1, 4);
-    int id = 1;
+    int id = Rand(1, 4);
+    //int id = 2;
     string newid = to_string(id);
     string image_newid = "image/image" + newid + ".jpg";
     return image_newid;
 }
+
+int Rand(int Minn, int Maxx)
+{
+    return rand() % (Maxx - Minn + 1) + Minn;
+}
+
+//Game function
 void InitMap(int option)
 {
     FOR(i, 1, option)
@@ -305,6 +704,7 @@ void ResetMap(int option)
 
     //Map
     SavePicture[option] = RandPicture();
+    gTexture[option].loadfromfile(gRenderer, SavePicture[option]);
 
 }
 void ResetGame(int option)
@@ -317,10 +717,6 @@ void ResetGame(int option)
             nowPos[option][temp.F][temp.S] = {i, j};
         }
     cntMove = 0;
-}
-int Rand(int Minn, int Maxx)
-{
-    return rand() % (Maxx - Minn + 1) + Minn;
 }
 
 bool CheckWin(int option)
@@ -346,24 +742,8 @@ void MoveBlank(int option, int addX, int addY)
 
 void RenderSmallPicture(int option)
 {
-    SDL_Rect SRect1, DRect1;
-    DRect1.x = 0;
-    DRect1.y = 0;
-    DRect1.w= 842;
-    DRect1.h= 587;
-    SRect1 = DRect1;
-    Background.render(gRenderer, SRect1, DRect1);
-    DRect1.x = 3;
-    DRect1.y = 3;
-    DRect1.w = 556;
-    DRect1.h = 581;
-    SRect1 = DRect1;
-    SRect1.x = 0;
-    SRect1.y = 0;
-    BackGame[option].render(gRenderer, SRect1, DRect1);
     int kt = 480/option;
     int kc = 2;
-    int XPos = 39, YPos = 39;
     for(int i = 1; i <= option; ++i)
         for(int j = 1; j <= option; ++j)
         {
@@ -374,12 +754,197 @@ void RenderSmallPicture(int option)
             SRect.w = kt;
             SRect.h = kt;
 
-            DRect.x = XPos + (curPos[option][i][j].F-1) * (kt + kc);
-            DRect.y = YPos + (curPos[option][i][j].S-1) * (kt + kc);
+            DRect.x = gTexture[option].x + (curPos[option][i][j].F-1) * (kt + kc);
+            DRect.y = gTexture[option].y + (curPos[option][i][j].S-1) * (kt + kc);
             DRect.w = DRect.h = kt;
             gTexture[option].render(gRenderer, SRect, DRect);
         }
 }
+
+//Texture manage
+void getAllTexture()
+{
+     Background.loadfromfile(gRenderer, Backgroundimage);
+
+     BackGame[3].loadfromfile(gRenderer, Backgameimage3);
+     BackGame[4].loadfromfile(gRenderer, Backgameimage4);
+     BackGame[5].loadfromfile(gRenderer, Backgameimage5);
+     BackGame[6].loadfromfile(gRenderer, Backgameimage6);
+
+     gTexture[3].loadfromfile(gRenderer, SavePicture[3]);
+     gTexture[4].loadfromfile(gRenderer, SavePicture[4]);
+     gTexture[5].loadfromfile(gRenderer, SavePicture[5]);
+     gTexture[6].loadfromfile(gRenderer, SavePicture[6]);
+
+     BackWinGame.loadfromfile(gRenderer, Backwingameimage);
+     BackOption.loadfromfile(gRenderer, Backoptionimage);
+     BackMenu.loadfromfile(gRenderer, Backmenuimage);
+     BackDemo.loadfromfile(gRenderer, Backdemoimage);
+
+     PlayButton.loadfromfile(gRenderer, Playbuttonimage);
+     _PlayButton.loadfromfile(gRenderer, Playbuttonimage);
+
+     ExitButton.loadfromfile(gRenderer, Exitbuttonimage);
+     _ExitButton.loadfromfile(gRenderer, Exitbuttonimage);
+
+     ResetButton1.loadfromfile(gRenderer, Resetbuttonimage);
+     _ResetButton1.loadfromfile(gRenderer, Resetbuttonimage);
+
+     ResetButton2.loadfromfile(gRenderer, Resetbuttonimage);
+     _ResetButton2.loadfromfile(gRenderer, Resetbuttonimage);
+
+     NewButton1.loadfromfile(gRenderer, Newbuttonimage);
+     _NewButton1.loadfromfile(gRenderer, Newbuttonimage);
+
+     NewButton2.loadfromfile(gRenderer, Newbuttonimage);
+     _NewButton2.loadfromfile(gRenderer, Newbuttonimage);
+
+     MenuButton1.loadfromfile(gRenderer, Menubuttonimage);
+     _MenuButton1.loadfromfile(gRenderer, Menubuttonimage);
+
+     MenuButton2.loadfromfile(gRenderer, Menubuttonimage);
+     _MenuButton2.loadfromfile(gRenderer, Menubuttonimage);
+
+     LookBackButton.loadfromfile(gRenderer, Lookbackbuttonimage);
+     _LookBackButton.loadfromfile(gRenderer, Lookbackbuttonimage);
+
+     ButtonOption[3].loadfromfile(gRenderer, Button3x3image);
+     _ButtonOption[3].loadfromfile(gRenderer, Button3x3image);
+
+     ButtonOption[4].loadfromfile(gRenderer, Button4x4image);
+     _ButtonOption[4].loadfromfile(gRenderer, Button4x4image);
+
+     ButtonOption[5].loadfromfile(gRenderer, Button5x5image);
+     _ButtonOption[5].loadfromfile(gRenderer, Button5x5image);
+
+     ButtonOption[6].loadfromfile(gRenderer, Button6x6image);
+     _ButtonOption[6].loadfromfile(gRenderer, Button6x6image);
+
+     Number.loadfromfile(gRenderer, Numberimage);
+}
+void setUpTexture()
+{
+    Background.setsRect(0, 0, 842, 587);
+    Background.setdRect(0, 0, 842, 587);
+
+    gTexture[3].setsRect(0, 0, 480, 480);
+    gTexture[3].setdRect(39, 39, 556, 581);
+
+    gTexture[4].setsRect(0, 0, 480, 480);
+    gTexture[4].setdRect(38, 38, 558, 583);
+
+    gTexture[5].setsRect(0, 0, 480, 480);
+    gTexture[5].setdRect(37, 37, 560, 585);
+
+    gTexture[6].setsRect(0, 0, 480, 480);
+    gTexture[6].setdRect(36, 36, 480, 480);
+
+    BackGame[3].setsRect(0, 0, 556, 581);
+    BackGame[3].setdRect(3, 3, 556, 581);
+
+    BackGame[4].setsRect(0, 0, 558, 583);
+    BackGame[4].setdRect(2, 2, 558, 583);
+
+    BackGame[5].setsRect(0, 0, 560, 585);
+    BackGame[5].setdRect(1, 1, 560, 585);
+
+    BackGame[6].setsRect(0, 0, 562, 587);
+    BackGame[6].setdRect(0, 0, 562, 587);
+
+    BackMenu.setsRect(0, 0, 842, 587);
+    BackMenu.setdRect(0, 0, 842, 587);
+
+    BackOption.setsRect(0, 0, 842, 587);
+    BackOption.setdRect(0, 0, 842, 587);
+
+    BackWinGame.setsRect(0, 0, 842, 587);
+    BackWinGame.setdRect(0, 0, 842, 587);
+
+    BackDemo.setsRect(0, 0, 562, 587);
+    BackDemo.setdRect(0, 0, 562, 587);
+
+    PlayButton.setsRect(0, 0, 194, 104);
+    PlayButton.setdRect(324, 334, 194, 104);
+
+    _PlayButton.setsRect(194, 0, 194, 104);
+    _PlayButton.setdRect(324, 334, 194, 104);
+
+    ExitButton.setsRect(0, 0, 194, 104);
+    ExitButton.setdRect(324, 457, 194, 104);
+
+    _ExitButton.setsRect(194, 0, 194, 104);
+    _ExitButton.setdRect(324, 457, 194, 104);
+
+    ButtonOption[3].setsRect(0, 0, 248, 248);
+    ButtonOption[3].setdRect(37, 60, 248, 248);
+
+    _ButtonOption[3].setsRect(248, 0, 248, 248);
+    _ButtonOption[3].setdRect(37, 60, 248, 248);
+
+    ButtonOption[4].setsRect(0, 0, 248, 248);
+    ButtonOption[4].setdRect(281, 60, 248, 248);
+
+    _ButtonOption[4].setsRect(248, 0, 248, 248);
+    _ButtonOption[4].setdRect(281, 60, 248, 248);
+
+    ButtonOption[5].setsRect(0, 0, 248, 248);
+    ButtonOption[5].setdRect(37, 304, 248, 248);
+
+    _ButtonOption[5].setsRect(248, 0, 248, 248);
+    _ButtonOption[5].setdRect(37, 304, 248, 248);
+
+    ButtonOption[6].setsRect(0, 0, 248, 248);
+    ButtonOption[6].setdRect(281, 304, 281, 304);
+
+    _ButtonOption[6].setsRect(248, 0, 248, 248);
+    _ButtonOption[6].setdRect(281, 304, 248, 248);
+
+    ResetButton1.setsRect(0, 0, 80, 108);
+    ResetButton1.setdRect(614, 164, 80, 108);
+
+    _ResetButton1.setsRect(80, 0, 80, 108);
+    _ResetButton1.setdRect(614, 164, 80, 108);
+
+    ResetButton2.setsRect(0, 0, 80, 108);
+    ResetButton2.setdRect(614, 260, 80, 108);
+
+    _ResetButton2.setsRect(80, 0, 80, 108);
+    _ResetButton2.setdRect(614, 260, 80, 108);
+
+    NewButton1.setsRect(0, 0, 80, 108);
+    NewButton1.setdRect(710, 164, 80, 108);
+
+    _NewButton1.setsRect(80, 0, 80, 108);
+    _NewButton1.setdRect(710, 164, 80, 108);
+
+    NewButton2.setsRect(0, 0, 80, 108);
+    NewButton2.setdRect(710, 260, 80, 108);
+
+    _NewButton2.setsRect(80, 0, 80, 108);
+    _NewButton2.setdRect(710, 260, 80, 108);
+
+    MenuButton1.setsRect(0, 0, 80, 108);
+    MenuButton1.setdRect(614, 288, 80, 108);
+
+    _MenuButton1.setsRect(80, 0, 80, 108);
+    _MenuButton1.setdRect(614, 288, 80, 108);
+
+    MenuButton2.setsRect(0, 0, 80, 108);
+    MenuButton2.setdRect(662, 384, 80, 108);
+
+    _MenuButton2.setsRect(80, 0, 80, 108);
+    _MenuButton2.setdRect(662, 384, 80, 108);
+
+    LookBackButton.setsRect(0, 0, 80, 108);
+    LookBackButton.setdRect(710, 288, 80, 108);
+
+    _LookBackButton.setsRect(80, 0, 80, 108);
+    _LookBackButton.setdRect(710, 288, 80, 108);
+
+}
+
+
+//SDL
 void init()
  {
     //Initialize SDL
@@ -417,7 +982,7 @@ void init()
  {
     //Free music
 
-    //Free Texture
+    //Destroy Texture
     Background.free();
 
     BackGame[3].free();
@@ -430,6 +995,52 @@ void init()
     gTexture[5].free();
     gTexture[6].free();
 
+    BackWinGame.free();
+    BackOption.free();
+    BackMenu.free();
+    BackDemo.free();
+
+    PlayButton.free();
+    _PlayButton.free();
+
+    ExitButton.free();
+    _ExitButton.free();
+
+    ResetButton1.free();
+    _ResetButton1.free();
+
+    ResetButton2.free();
+    _ResetButton2.free();
+
+    NewButton1.free();
+    _NewButton1.free();
+
+    NewButton2.free();
+    _NewButton2.free();
+
+    MenuButton1.free();
+    _MenuButton1.free();
+
+    MenuButton2.free();
+    _MenuButton2.free();
+
+    LookBackButton.free();
+    _LookBackButton.free();
+
+    ButtonOption[3].free();
+    _ButtonOption[3].free();
+
+    ButtonOption[4].free();
+    _ButtonOption[4].free();
+
+    ButtonOption[5].free();
+    _ButtonOption[5].free();
+
+    ButtonOption[6].free();
+    _ButtonOption[6].free();
+
+    Number.free();
+
     //Destroy window
 	SDL_DestroyRenderer(gRenderer);
 	SDL_DestroyWindow(gWindow);
@@ -440,7 +1051,6 @@ void init()
 	IMG_Quit();
 	SDL_Quit();
 	Mix_Quit();
-	TTF_Quit();
  }
 
 

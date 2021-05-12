@@ -13,7 +13,6 @@ enum num_ERROR
 {
     SDL_ERROR = 0,
     IMG_ERROR,
-    TTF_ERROR,
     MIX_ERROR
 };
 

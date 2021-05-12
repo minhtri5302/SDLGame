@@ -9,15 +9,27 @@ LTexture::LTexture()
 {
     this->mTexture = NULL;
 }
-LTexture::LTexture(SDL_Rect _sRect, SDL_Rect _dRect)
-{
-    this->mTexture = NULL;
-    this->sRect = sRect;
-    this->dRect = dRect;
-}
 LTexture::~LTexture()
 {
     this->mTexture = NULL;
+}
+void LTexture::setsRect(int _x, int _y, int _w, int _h)
+{
+    this->sRect.x = _x;
+    this->sRect.y = _y;
+    this->sRect.w = _w;
+    this->sRect.h = _h;
+}
+void LTexture::setdRect(int _x, int _y, int _w, int _h)
+{
+    this->dRect.x = _x;
+    this->dRect.y = _y;
+    this->dRect.w = _w;
+    this->dRect.h = _h;
+    this->x = _x;
+    this->y = _y;
+    this->w = _w;
+    this->h = _h;
 }
 void LTexture::loadfromfile(SDL_Renderer* gRenderer, const string &path)
 {
