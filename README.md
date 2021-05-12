@@ -26,6 +26,6 @@
 ## Sources
 * SDL Code:  Tự đọc hiểu code của cô Châu và ví dụ trên Lazyfoo và code lại theo cách của mình
 * Graphics:  Thiết kế bởi em và bạn Bá Lương
-* Sound:     Nhặt nhạnh các file nhạc, effect trên [Youtube] (youtube.com)
+* Sound:     Nhặt nhạnh các file nhạc, effect trên Youtube và các trang cộng đồng nhạc
 
 
