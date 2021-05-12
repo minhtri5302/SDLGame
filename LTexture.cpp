@@ -4,7 +4,6 @@
 using namespace std;
 
 
-
 LTexture::LTexture()
 {
     this->mTexture = NULL;

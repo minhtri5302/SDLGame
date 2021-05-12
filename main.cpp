@@ -32,7 +32,7 @@ const string Backwingameimage ="system_image/WinGameBack.png";
 const string Backoptionimage ="system_image/OptionBack.png";
 const string Backmenuimage = "system_image/MenuBack.png";
 const string Backdemoimage = "system_image/PictureBack.png";
-
+const string Backbeforegameimage = "system_image/BeforeGameBack.png";
 //Button Image Direction
 const string Playbuttonimage = "system_image/PlayButton.png";
 const string Exitbuttonimage = "system_image/ExitButton.png";
@@ -53,11 +53,10 @@ SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 
 void init();
-void render();
 void close();
 
 //Declare
-int n, cntMove;
+int cntMove;
 int highscore[7];
 int MinMove[7], cntOption[7];
 pair<int, int> SavePos[7][7][7]; // Dữ liệu cũ;
@@ -71,7 +70,7 @@ vector<vector<pii>> Data[7];
 vector<pii> State1;
 int cnt;
 int dState[7][10000000];
-int times = 2;
+int times = 10;
 
 //Texture manage
 LTexture Background;
@@ -81,6 +80,7 @@ LTexture BackWinGame;
 LTexture BackOption;
 LTexture BackMenu;
 LTexture BackDemo;
+LTexture BackBeforeGame;
 
 
 LTexture PlayButton;
@@ -311,7 +311,7 @@ void waitOption()
 }
 void FullPictureDemo(int option)
 {
-    Background.render(gRenderer);
+    BackBeforeGame.render(gRenderer);
     BackDemo.render(gRenderer);
     //Update cnt and Minmove
     SDL_Rect DRect;
@@ -327,7 +327,7 @@ void FullPictureDemo(int option)
         if(e.type == SDL_KEYDOWN)
         {
             switch(e.key.keysym.sym)
-            case SDLK_SPACE:
+            case SDLK_RETURN:
             {
                 waitGamePlay(option);
                 return;
@@ -418,7 +418,7 @@ void waitGamePlay(int option)
                     touchStatus = 4;
                 }
                 if(!inside(x, y, LookBackButton) && !inside(x, y, ResetButton1)
-                    && !inside(x, y, NewButton1) && !inside(x, y, NewButton1))
+                    && !inside(x, y, NewButton1) && !inside(x, y, MenuButton1))
                 {
                     Background.render(gRenderer);
                     BackGame[option].render(gRenderer);
@@ -445,16 +445,12 @@ void waitGamePlay(int option)
                 if(inside(x, y, NewButton1))
                 {
                     ResetMap(option);
-                    Background.render(gRenderer);
-                    BackGame[option].render(gRenderer);
-                    RenderSmallPicture(option);
-                    _NewButton1.render(gRenderer);
-                    //Update score and optimal
-                    SDL_RenderPresent(gRenderer);
+                    FullPictureDemo(option);
+                    return;
                 }
                 if(inside(x, y, MenuButton1))
                 {
-                    waitOption();
+                    waitGameMenu();
                     return;
                 }
                 if(inside(x, y, LookBackButton))
@@ -475,6 +471,7 @@ void waitGamePlay(int option)
 }
 void waitGameOver(int option)
 {
+    highscore[option] = max(highscore[option], cntMove);
     BackWinGame.render(gRenderer);
     SDL_Rect DRect;
     DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
@@ -535,18 +532,18 @@ void waitGameOver(int option)
             if(inside(x, y, ResetButton2))
             {
                 ResetGame(option);
-                waitGamePlay(option);
+                FullPictureDemo(option);
                 return;
             }
             if(inside(x, y, NewButton2))
             {
                 ResetMap(option);
-                waitGamePlay(option);
+                FullPictureDemo(option);
                 return;
             }
             if(inside(x, y, MenuButton2))
             {
-                waitOption();
+                waitGameMenu();
                 return;
             }
         }
@@ -780,6 +777,7 @@ void getAllTexture()
      BackOption.loadfromfile(gRenderer, Backoptionimage);
      BackMenu.loadfromfile(gRenderer, Backmenuimage);
      BackDemo.loadfromfile(gRenderer, Backdemoimage);
+     BackBeforeGame.loadfromfile(gRenderer, Backbeforegameimage);
 
      PlayButton.loadfromfile(gRenderer, Playbuttonimage);
      _PlayButton.loadfromfile(gRenderer, Playbuttonimage);
@@ -862,6 +860,9 @@ void setUpTexture()
 
     BackDemo.setsRect(0, 0, 562, 587);
     BackDemo.setdRect(0, 0, 562, 587);
+
+    BackBeforeGame.setsRect(0, 0, 842, 587);
+    BackBeforeGame.setdRect(0, 0, 842, 587);
 
     PlayButton.setsRect(0, 0, 194, 104);
     PlayButton.setdRect(324, 334, 194, 104);
@@ -970,14 +971,6 @@ void init()
     //Initialize SDL_mixer
 
  }
-
- void render()
- {
-     //SDL_RenderClear(gRenderer);
-
-     SDL_RenderPresent(gRenderer);
- }
-
  void close()
  {
     //Free music
@@ -999,6 +992,7 @@ void init()
     BackOption.free();
     BackMenu.free();
     BackDemo.free();
+    BackBeforeGame.free();
 
     PlayButton.free();
     _PlayButton.free();
