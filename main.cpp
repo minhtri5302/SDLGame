@@ -54,6 +54,13 @@ SDL_Renderer* gRenderer = NULL;
 
 void init();
 void close();
+void loadMusic();
+//Music for Game
+Mix_Music *gMusic = NULL;
+
+Mix_Chunk *Move= NULL;
+Mix_Chunk *Click = NULL;
+Mix_Chunk *Win = NULL;
 
 //Declare
 int cntMove;
@@ -71,6 +78,7 @@ vector<pii> State1;
 int cnt;
 int dState[7][10000000];
 int times = 10;
+int sumImage = 14;
 
 //Texture manage
 LTexture Background;
@@ -163,6 +171,9 @@ int main(int argc, char* argv[])
     init();
     getAllTexture();
     setUpTexture();
+    loadMusic();
+
+    Mix_PlayMusic( gMusic, -1 );
 
     //Game loop
     while(1)
@@ -182,6 +193,11 @@ bool inside(int x, int y, LTexture &Button)
 }
 void waitGameMenu()
 {
+    if( Mix_PausedMusic() == 1 )
+    {
+        //Resume the music
+        Mix_ResumeMusic();
+    }
     BackMenu.render(gRenderer);
     SDL_RenderPresent(gRenderer);
 
@@ -190,7 +206,10 @@ void waitGameMenu()
     while(1)
     {
         if(SDL_WaitEvent(&e) == 0) continue;
-        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_QUIT)
+        {
+            exit(0);
+        }
         if(e.type == SDL_MOUSEMOTION)
         {
             int x, y;
@@ -222,18 +241,27 @@ void waitGameMenu()
             SDL_GetMouseState(&x, &y);
             if(inside(x, y, PlayButton))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 waitOption();
                 return;
             }
             if(inside(x, y, ExitButton))
             {
+                Mix_PlayChannel(-1, Click, 0);
+                SDL_Delay(200);
                 exit(0);
+
             }
         }
     }
 }
 void waitOption()
 {
+    if( Mix_PausedMusic() == 1 )
+    {
+        //Resume the music
+        Mix_ResumeMusic();
+    }
     BackOption.render(gRenderer);
     SDL_RenderPresent(gRenderer);
 
@@ -242,7 +270,12 @@ void waitOption()
     while(1)
     {
         if(SDL_WaitEvent(&e) == 0) continue;
-        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_QUIT)
+        {
+            close();
+            WriteOldInfo();
+            exit(0);
+        }
         if(e.type == SDL_MOUSEMOTION)
         {
             int x, y;
@@ -289,21 +322,25 @@ void waitOption()
             SDL_GetMouseState(&x, &y);
             if(inside(x, y, ButtonOption[3]))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 FullPictureDemo(3);
                 return;
             }
             if(inside(x, y, ButtonOption[4]))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 FullPictureDemo(4);
                 return;
             }
             if(inside(x, y, ButtonOption[5]))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 FullPictureDemo(5);
                 return;
             }
             if(inside(x, y, ButtonOption[6]))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 FullPictureDemo(6);
                 return;
             }
@@ -312,6 +349,11 @@ void waitOption()
 }
 void FullPictureDemo(int option)
 {
+    if( Mix_PausedMusic() == 1 )
+    {
+        //Resume the music
+        Mix_ResumeMusic();
+    }
     BackBeforeGame.render(gRenderer);
     BackDemo.render(gRenderer);
     SDL_Rect DRect;
@@ -323,12 +365,18 @@ void FullPictureDemo(int option)
     while(1)
     {
         if(SDL_WaitEvent(&e) == 0) continue;
-        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_QUIT)
+        {
+            close();
+            WriteOldInfo();
+            exit(0);
+        }
         if(e.type == SDL_KEYDOWN)
         {
             switch(e.key.keysym.sym)
             case SDLK_RETURN:
             {
+                Mix_PlayChannel(-1, Click, 0);
                 waitGamePlay(option);
                 return;
             }
@@ -338,6 +386,7 @@ void FullPictureDemo(int option)
 }
 void waitGamePlay(int option)
 {
+
     InitMap(option);
 
     Background.render(gRenderer);
@@ -352,9 +401,13 @@ void waitGamePlay(int option)
     {
         while(SDL_PollEvent(&e) != 0)
         {
-            if(e.type == SDL_QUIT) exit(0);
+            if(e.type == SDL_QUIT)
+            {
+                exit(0);
+            }
             if( e.type == SDL_KEYDOWN )
             {
+                Mix_PlayChannel(-1, Move, 0);
                 switch(e.key.keysym.sym)
                 {
                     case SDLK_UP:
@@ -434,6 +487,7 @@ void waitGamePlay(int option)
                 SDL_GetMouseState(&x, &y);
                 if(inside(x, y, ResetButton1))
                 {
+                    Mix_PlayChannel(-1, Click, 0);
                     ResetGame(option);
                     Background.render(gRenderer);
                     BackGame[option].render(gRenderer);
@@ -444,17 +498,20 @@ void waitGamePlay(int option)
                 }
                 if(inside(x, y, NewButton1))
                 {
+                    Mix_PlayChannel(-1, Click, 0);
                     ResetMap(option);
                     FullPictureDemo(option);
                     return;
                 }
                 if(inside(x, y, MenuButton1))
                 {
+                    Mix_PlayChannel(-1, Click, 0);
                     waitGameMenu();
                     return;
                 }
                 if(inside(x, y, LookBackButton))
                 {
+                    Mix_PlayChannel(-1, Click, 0);
                     Background.render(gRenderer);
                     BackDemo.render(gRenderer);
                     SDL_Rect DRect;
@@ -471,7 +528,10 @@ void waitGamePlay(int option)
 }
 void waitGameOver(int option)
 {
-    highscore[option] = min(highscore[option], cntMove);
+     Mix_PauseMusic();
+    Mix_PlayChannel(-1, Win, 0);
+    if(highscore[option]) highscore[option] = min(highscore[option], cntMove);
+    else highscore[option] = cntMove;
     BackWinGame.render(gRenderer);
     SDL_Rect DRect;
     DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
@@ -484,7 +544,10 @@ void waitGameOver(int option)
     while(1)
     {
         if(SDL_WaitEvent(&e) == 0) continue;
-        if(e.type == SDL_QUIT) exit(0);
+        if(e.type == SDL_QUIT)
+        {
+            exit(0);
+        }
         if(e.type == SDL_MOUSEMOTION)
         {
             int x, y;
@@ -531,18 +594,21 @@ void waitGameOver(int option)
             SDL_GetMouseState(&x, &y);
             if(inside(x, y, ResetButton2))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 ResetGame(option);
                 FullPictureDemo(option);
                 return;
             }
             if(inside(x, y, NewButton2))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 ResetMap(option);
                 FullPictureDemo(option);
                 return;
             }
             if(inside(x, y, MenuButton2))
             {
+                Mix_PlayChannel(-1, Click, 0);
                 waitGameMenu();
                 return;
             }
@@ -649,10 +715,8 @@ void WriteOldInfo()
 //Rand Function
 string RandPicture()
 {
-    int id = Rand(1, 4);
-    //int id = 2;
-    string newid = to_string(id);
-    string image_newid = "image/image" + newid + ".jpg";
+    int id = Rand(1, sumImage);
+    string image_newid = "image/"+ to_string(id)+".png";
     return image_newid;
 }
 
@@ -990,7 +1054,16 @@ void setUpTexture()
 }
 
 
-//SDL
+//SDL and Mixer
+void loadMusic()
+{
+    gMusic = Mix_LoadMUS("music/BackgroundMusic.mp3");
+    Move = Mix_LoadWAV("music/Move.wav");
+    Click = Mix_LoadWAV("music/Click.wav");
+    Win = Mix_LoadWAV("music/Win.wav");
+    if(gMusic == NULL || Move == NULL || Click == NULL || Win == NULL)
+        logError("Mixer Load", MIX_ERROR);
+}
 void init()
  {
     //Initialize SDL
@@ -1011,14 +1084,19 @@ void init()
     //Initialize PNG loading
     int imgFlags = IMG_INIT_PNG;
     if(!(IMG_Init( imgFlags ) & imgFlags))
-        logError("SDL Init", IMG_ERROR);
+        logError("IMG Init", IMG_ERROR);
 
     //Initialize SDL_mixer
-
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+        logError("Mix Init", MIX_ERROR);
  }
  void close()
  {
     //Free music
+    Mix_FreeMusic(gMusic);
+    Mix_FreeChunk(Move);
+    Mix_FreeChunk(Click);
+    Mix_FreeChunk(Win);
 
     //Destroy Texture
     Background.free();
