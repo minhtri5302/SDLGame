@@ -1,0 +1,68 @@
+Back lớn:
+- Kích thước 842 x 587
+- Vẽ từ 0, 0
+- Có 4 Back 
+ + Menu
+ + Option
+ + Game
+ + WinGame
+
+Button cho phần Menu:
+(Chú ý khi render buttonhãy set viewport về ban đầu)
+- Kích thước 194x104
+- Có 2 button:
+ + Play (vẽ từ 324, 334)
+ + Exit (vẽ từ 324, 457)
+
+Button cho phần Option:
+(Chú ý khi render button hãy set viewport về ban đầu)
+- Kích thước 248x248
+- Có 4 button:
+ + 3x3 (vẽ từ 37, 60)
+ + 4x4 (vẽ từ 281, 60)
+ + 5x5 (vẽ từ 37, 304)
+ + 6x6 (vẽ từ 281, 304) 
+- Render ảnh từ 41, 64
+
+Khung cho phần chơi:
+- Kích thước 556x581 (với 3x3)
+(+2 mỗi chiều khi tăng số ô lên 1)
+- Vẽ từ 3, 3 (với 3x3)
+(-1 mỗi chiều khi tăng số ô lên 1)
+- Vị trí ảnh cho phần chơi: 37, 37 (để set viewport) (-1 mỗi chiều khi tăng số ô lên 1)
+- Lưu ý: ảnh để cách viền 2 ô nên set xong sẽ vẽ từ điểm 2, 2
+- Có 4 khung:  
+ + 3x3
+ + 4x4
+ + 5x5
+ + 6x6
+
+Button cho phần chơi:
+(Chú ý khi render button hãy set viewport về ban đầu)
+- Kích thước 80x108
+- Có 4 Button:
+ + Reset (vẽ từ 614, 164)
+ + New (vẽ từ 710, 164)
+ + Menu (vẽ từ 614, 288)
+ + Look (vẽ từ 710, 288)
+
+Điểm số cho phần chơi:
+- Score (vẽ từ 728, 80)
+- Optimal (vẽ từ 744, 128)
+
+Button cho phần WinGame:
+(Chú ý khi render button hãy set viewport về ban đầu)
+- Kích thước 80x108
+- Có 3 Button:
+ + Reset (vẽ từ 614, 260)
+ + New (vẽ từ 710, 260)
+ + Menu (vẽ từ 662, 384)
+
+Điểm số cho phần WinGame:
+- Score (vẽ từ 728, 112)
+- HighScore (vẽ từ 728, 170)
+- Optimal (vẽ từ 744, 208)
+
+Picture Pack
+vẽ từ 0 0
+kích thước 562 x  587
