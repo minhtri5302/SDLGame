@@ -77,8 +77,8 @@ vector<vector<pii>> Data[7];
 vector<pii> State1;
 int cnt;
 int dState[7][10000000];
-int times = 10;
-int sumImage = 14;
+int times = 11;
+int sumImage = 35;
 
 //Texture manage
 LTexture Background;
@@ -123,17 +123,19 @@ LTexture _ButtonOption[7];
 
 LTexture Number;
 
+//Load and set location for Texture
 void getAllTexture();
 void setUpTexture();
 
 
-//Game function
+//Game loop
 void waitGameMenu();
 void waitOption();
 void FullPictureDemo(int option);
 void waitGamePlay(int option);
 void waitGameOver(int option);
 
+//Game function
 bool inside(int x, int y, LTexture &Button);
 void RenderSmallPicture(int option);
 void MoveBlank(int option, int addX, int addY);
@@ -181,10 +183,18 @@ int main(int argc, char* argv[])
 
     //Free Objects
     close();
-
-    //Write Old Info
-    WriteOldInfo();
 }
+
+
+
+
+
+
+
+
+
+
+
 bool inside(int x, int y, LTexture &Button)
 {
     if(x >= Button.x && x <= Button.x + Button.w - 1 &&
@@ -208,6 +218,8 @@ void waitGameMenu()
         if(SDL_WaitEvent(&e) == 0) continue;
         if(e.type == SDL_QUIT)
         {
+            WriteOldInfo();
+            close();
             exit(0);
         }
         if(e.type == SDL_MOUSEMOTION)
@@ -249,6 +261,8 @@ void waitGameMenu()
             {
                 Mix_PlayChannel(-1, Click, 0);
                 SDL_Delay(200);
+                WriteOldInfo();
+                close();
                 exit(0);
 
             }
@@ -272,8 +286,8 @@ void waitOption()
         if(SDL_WaitEvent(&e) == 0) continue;
         if(e.type == SDL_QUIT)
         {
-            close();
             WriteOldInfo();
+            close();
             exit(0);
         }
         if(e.type == SDL_MOUSEMOTION)
@@ -367,8 +381,8 @@ void FullPictureDemo(int option)
         if(SDL_WaitEvent(&e) == 0) continue;
         if(e.type == SDL_QUIT)
         {
-            close();
             WriteOldInfo();
+            close();
             exit(0);
         }
         if(e.type == SDL_KEYDOWN)
@@ -403,6 +417,8 @@ void waitGamePlay(int option)
         {
             if(e.type == SDL_QUIT)
             {
+                WriteOldInfo();
+                close();
                 exit(0);
             }
             if( e.type == SDL_KEYDOWN )
@@ -500,6 +516,7 @@ void waitGamePlay(int option)
                 {
                     Mix_PlayChannel(-1, Click, 0);
                     ResetMap(option);
+                    WriteOldInfo();
                     FullPictureDemo(option);
                     return;
                 }
@@ -528,10 +545,9 @@ void waitGamePlay(int option)
 }
 void waitGameOver(int option)
 {
-     Mix_PauseMusic();
+    Mix_PauseMusic();
     Mix_PlayChannel(-1, Win, 0);
-    if(highscore[option]) highscore[option] = min(highscore[option], cntMove);
-    else highscore[option] = cntMove;
+    highscore[option] = min(highscore[option], cntMove);
     BackWinGame.render(gRenderer);
     SDL_Rect DRect;
     DRect.x = 37, DRect.y = 60, DRect.w = 480, DRect.h = 480;
@@ -546,6 +562,8 @@ void waitGameOver(int option)
         if(SDL_WaitEvent(&e) == 0) continue;
         if(e.type == SDL_QUIT)
         {
+            WriteOldInfo();
+            close();
             exit(0);
         }
         if(e.type == SDL_MOUSEMOTION)
@@ -603,6 +621,7 @@ void waitGameOver(int option)
             {
                 Mix_PlayChannel(-1, Click, 0);
                 ResetMap(option);
+                WriteOldInfo();
                 FullPictureDemo(option);
                 return;
             }
@@ -805,7 +824,7 @@ void ResetMap(int option)
         }
 
     //Reset các thông số.
-    highscore[option] = 0;
+    highscore[option] = 9999;
     cntMove = 0;
 
     //Map
