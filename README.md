@@ -11,7 +11,7 @@
 * Gameplay cho phép người chơi xem ảnh hoàn chỉnh rồi mới chơi. Trong phần gameplay của em còn có chức năng reset lại để chơi lại từ đầu, reset hình ảnh và thứ tự các ô hình, trở về menu, cho người chơi xem lại ảnh hoàn chỉnh.
 * Game sẽ lưu điểm là số lần di chuyển, highcore là số lần di chuyển ít nhất trong các lần chơi. Trong quá trình chơi, số lần di chuyển tự cập nhật và hiển thị cùng với game play.
 * Khi thắng sẽ có menu hiện ra thông báo điểm, highscore, số bước đi ít nhất để đưa bức tranh về hoàn chỉnh.
-
+* Game có nhạc nền, hiệu ứng khi click chuột, di chuyển ô tranh và nhạc khi thắng.
 
 ## Algorithm
  
