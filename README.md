@@ -29,4 +29,12 @@
 * Graphics:  Thiết kế bởi bạn Bá Lương và em. (Bạn Bá thiết kế chính, em đóng góp ý kiến, ý tưởng sửa đổi cho phù hợp với game)
 * Sound:     Nhặt nhạnh các file nhạc, effect trên Youtube và các trang cộng đồng nhạc.
 
+## Note
+* Người chơi có thể thêm thay đổi tranh trong game bằng cách :
+```
+	Chọn + chỉnh ảnh có kích thước 480 X 480 px  --> Vào thư mục ./image và thêm ảnh --> Đổi tên file ảnh thành số thứ tự ảnh + ".png" 
+	--> Vào code main.cpp phần khai báo biến --> Chỉnh sửa giá trị biến sumImage tăng giảm tuỳ số lượng ảnh --> Biên dịch lại game
+```
+* Trường hợp xoá ảnh, vào thư mục ./image xoá ảnh và đổi tên ảnh cuối cùng thành tên ảnh đã xoá để tránh hàm chọn ảnh ngẫu nhiêu gây lỗi game,
+	đồng thời giảm biến sumImage trong main.cpp, biên dịch lại game.
 
